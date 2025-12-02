@@ -2,9 +2,9 @@ name: Python application
 
 on:
   push:
-    branches: [ "devops" ]
+    branches: [ "feature-docker" ]
   pull_request:
-    branches: [ "devops" ]
+    branches: [ "feature-docker" ]
 
 # permissions:
 #   contents: read
