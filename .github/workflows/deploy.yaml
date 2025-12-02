@@ -50,9 +50,6 @@ jobs:
     - name: Run SSH command, build and deploy container
       run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.Public_IPv4_DNS }} <<EOF
-          
-            # aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 077442836529.dkr.ecr.ca-central-1.amazonaws.com
-             
             cd ~/project/DevOps-Project-Flask-App
             docker compose -f docker-compose-flask.yaml down
             docker system prune -f
