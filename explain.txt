@@ -1,1 +1,10 @@
 docker run -d --name mysql_db -p 3306:3306 --network flask-network -e MYSQL_ROOT_PASSWORD=flaskdb -e MYSQL_DATABASE=flaskdb mysql:8.0 
+
+docker run --name flask-demo-app -d -p 5050:5000 --network flask-network -e MYSQL_HOST=mysql_db -e MYSQL_USER=root -e MYSQL_PASSWORD=flaskdb -e MYSQL_DB=flaskd
+b flask-demo:latest 
+
+
+- mysql_data:/var/lib/mysql
+
+healthcheck:
+conditon

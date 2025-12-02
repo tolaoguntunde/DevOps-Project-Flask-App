@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  flask-mysql-db:
+    image: mysql:8.0
+    container_name: flask-db
+    ports: 
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: flaskdb
+      MYSQL_DATABASE: flask-demo-db
+    networks:
+      - flask-network
+  flask-app-compose:
+    build: .
+    container_name: flask-demo-app-compose
+    ports: 
+      - "5060:5000"
+    environment:
+      MYSQL_HOST: flask-mysql-db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: flaskdb
+      MYSQL_DB: flask-demo-db
+    restart: unless-stopped
+    depends_on: 
+      - flask-mysql-db
+    networks:
+      - flask-network
+    
+networks:
+  flask-network:
+
+ 
