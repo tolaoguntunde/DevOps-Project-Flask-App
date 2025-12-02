@@ -1,0 +1,58 @@
+name: Python application
+
+on:
+  push:
+    branches: [ "devops" ]
+  pull_request:
+    branches: [ "devops" ]
+
+# permissions:
+#   contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+
+    # - name: Checkout code
+    #   uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ca-central-1  # Set your AWS region here
+
+      
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Run SSH command, build and deploy container
+      run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.Public_IPv4_DNS }} <<EOF
+            aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 421236737750.dkr.ecr.ca-central-1.amazonaws.com
+             
+            cd ~/project/DevOps-Project-Flask-App
+            docker compose -f docker-compose-flask.yaml down
+            docker system prune -f
+            docker compose -f docker-compose-flask.yaml up -d
